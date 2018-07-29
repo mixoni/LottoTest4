@@ -9,7 +9,7 @@ class LuckyNumber extends React.Component {
     
     componentDidMount(){
         console.log("this.props.luckyNumberValue" + this.props.luckyNumberValue);
-        if(this.props.luckyNumberValue && this.props.luckyNumberValue > 0 && !this.props.animation)
+        if(this.props.luckyNumberValue && this.props.luckyNumberValue != 0 && !this.props.animation)
         {
             let color = this.handleColor(this.props.luckyNumberValue);
             let $class =  "ball-selected ball-selected-" + color;

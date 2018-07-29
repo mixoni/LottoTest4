@@ -15,15 +15,16 @@ class Circle extends React.Component {
                        radius: 0,
                        radisuSat: 0,
                        deg2rad:0,
-                       dataBadge : this.props.dataBadge
+                       dataBadge : this.props.dataBadge                       
         };
-        this.Loop  = this.Loop.bind(this));
+        this.Loop  = this.Loop.bind(this);
         this.Animation  = this.Animation.bind(this);
         this.handleChange  = this.handleChange.bind(this);
     }
 
 propTypes: {
-        onComplete: React.PropTypes.func
+        onComplete: React.PropTypes.func,
+        updateStatistics: React.PropTypes.func
 }
 
 componentDidMount(){
@@ -31,21 +32,27 @@ componentDidMount(){
         this.Animation();
         let counter = 0;
         let counterLuckyNumbers = 1;
-        let $interval = 5000;
+        let $interval = 6000;
+        let $ballwithBadgeInterval = 5300;
+        let $ballClockMoveInterval = 4700;
+        let $clockMoveInterval = 5200;
         let $value = 0;
         let numbersArray = [...this.state.listItems];
         let $this = this;
       
         let exLoop = setInterval(function() {
             let elementToUpdate = document.querySelector('input.input-ball-circle:last-of-type');
+            let centerElementToUpdate = document.querySelector('.center-circle');
             let badgeElementToUpdate = document.querySelector('[data-badge="' + counterLuckyNumbers + '"]');
             //console.log("elementToUpdate: " + elementToUpdate);            
             if(counter > numbersArray.length - 1 || !elementToUpdate)
             {
-                clearInterval(exLoop);
-                console.log("elementToUpdate: " + elementToUpdate);
-                //(e) => this.props.updateTextCB(e.target.value) 
-                $this.props.onComplete();
+                clearInterval(exLoop); 
+                centerElementToUpdate.innerHTML = "<div class='center-ball-animation-finished-text'>Kraj</div>";         
+                setTimeout(function(){
+                    $this.props.onComplete();
+                }, 2000);               
+                
             }
             else{                            
                 $value = numbersArray[counter]; //++counter + $interval/1000;
@@ -53,24 +60,61 @@ componentDidMount(){
                 let color = $this.handleBallColor($value);
                          
                 let $classAnimation = "ball-selected-animation ball-selected-" + color;
+                let $classAnimationBadges = "ball-selected-badges ball-selected-" + color;
                 let $class = "ball-selected ball-selected-" + color;
-                //console.log($class);
-                //---- this should be update
-                elementToUpdate.parentElement.innerHTML = "<div class='" + $classAnimation +"'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + $value + "</span></div></div></div>";
-                setTimeout(function(){ 
-                        badgeElementToUpdate.innerHTML = "<div class='" + $class +"'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + $value + "</span></div></div></div>";
+
+                centerElementToUpdate.innerHTML = "<div class='center-ball-animation'>" + $value + "</div>";          
+
+                setTimeout(function(){
+                    let currentValue =  $value;
+                    let currentBallClass = $classAnimation;
+                    elementToUpdate.parentElement.innerHTML = "<div class='" + currentBallClass +"'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + currentValue + "</span></div></div></div>";
+                }, $ballClockMoveInterval);
+
+               setTimeout(function(){ 
+                        let currentValue =  $value;
+                        let currentBallClass = $classAnimationBadges;
+                        badgeElementToUpdate.innerHTML = "<div class='" + currentBallClass +"'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + currentValue + "</span></div></div></div>";
                         counterLuckyNumbers++ ;
-                }, 2500)
-   
+                        $this.props.updateStatistics($value);
+                }, $ballwithBadgeInterval)
+                
                 counter++;             
 
                 setTimeout(function(){ 
                         $this.Loop(true);}
-                , 2500);                       
+                , $clockMoveInterval);                       
             }
         }, $interval);
     }
 }
+
+moveTopToBottom = (parentElement, startPosition) => {      
+      //var elem = document.getElementById(elementClass);   
+      let parentPos = parentElement.getBoundingClientRect(); 
+      let element = parentElement.children[0];
+      let pos = element.getBoundingClientRect();      
+      let id = setInterval(frame, 10);
+      let nextTop = pos.top;
+      let nextWidth = element.clientWidth;
+      let nextHeight = element.clientheigth;
+
+      function frame() {
+        if (nextTop == 350) {
+          clearInterval(id);
+        } else {
+          console.log('position of center ball : ' + nextTop.toString());          
+          nextTop++; 
+          nextHeight--;
+          nextWidth--;
+          element.style.marginTop = nextTop.toString() + 'px'; 
+          element.style.width = nextWidth.toString() + 'px'; 
+          element.style.height = nextHeight.toString() + 'px'; 
+          //elem.style.left = pos + 'px'; 
+        }
+      }
+}
+
 
 handleBallColor = ($value) => {
     let color = "black";
@@ -153,9 +197,12 @@ Loop = (move) => {
 
 Animation = () => {
     //console.log(document.getElementById('center'));
-    var pos = document.getElementsByClassName('center-circle')[0].getBoundingClientRect(),
+
+    var centerElement = document.getElementsByClassName('center-circle')[0],
+    pos = centerElement.getBoundingClientRect(),
+    posOutsideCircle = document.getElementsByClassName('center-circle-outside')[0];
     radiusSatByElement = document.getElementsByClassName('ball-circle')[0].offsetWidth * 0.5,
-    radiusByElement = document.getElementsByClassName('center-circle')[0].offsetWidth * 0.5,
+    radiusByElement = centerElement.offsetWidth * 0.5,
     cxByElement = pos.left + radiusByElement,
     cyByElement = pos.top + radiusByElement,
     $this = this,
@@ -163,6 +210,12 @@ Animation = () => {
     spc = 360 / numberOfBall,
     deg2radByElement = Math.PI / 180,
     i = 0;
+    
+    posOutsideCircle.style.top = (pos.top - 88).toString() + "px";
+    posOutsideCircle.style.left = (pos.left - 88).toString() + "px";
+    posOutsideCircle.style.width = (centerElement.width + 100).toString() + "px";
+    posOutsideCircle.style.height = (centerElement.height + 100).toString() + "px";
+
 
     this.setState({
         radiusSat:radiusSatByElement,

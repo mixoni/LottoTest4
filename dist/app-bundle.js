@@ -134,10 +134,74 @@ var Animation = /** @class */ (function (_super) {
     __extends(Animation, _super);
     function Animation(props) {
         var _this = _super.call(this, props) || this;
+        _this.calculateStatistics = function ($value) {
+            var $this = _this;
+            var selNumbers = _this.state.selectedNumbers.slice();
+            selNumbers.push($value);
+            _this.setState({ selectedNumbers: selNumbers.slice() });
+            console.log('selectedNumbers after push the value' + _this.state.selectedNumbers.slice());
+            //--- total sum 
+            var total = _this.state.selectedNumbers.reduce(function (a, b) { return a + b; }, 0);
+            _this.setState({ totalSum: total });
+            //--- sort ascending => min to max
+            var selectedNumbersSorted = _this.state.selectedNumbers.slice().sort(function (a, b) { return a - b; });
+            //-- min number
+            var minNo = selectedNumbersSorted[0];
+            _this.setState({ minNumber: selectedNumbersSorted[0] });
+            //-- max number
+            var maxNo = selectedNumbersSorted[selectedNumbersSorted.length - 1];
+            _this.setState({ maxNumber: maxNo });
+            //--- sum min 3 numbers
+            if (selectedNumbersSorted.length >= 3) {
+                var minThreesum = selectedNumbersSorted.slice(0, 3).reduce(function (a, b) { return a + b; }, 0);
+                $this.setState({ minThreeSum: minThreesum });
+                //--- sum max 3 numbers
+                var maxThreesum = selectedNumbersSorted.slice(selectedNumbersSorted.length - 3, selectedNumbersSorted.length).reduce(function (a, b) { return a + b; }, 0);
+                $this.setState({ maxThreeSum: maxThreesum });
+            }
+            if (selectedNumbersSorted.length >= 5) {
+                //--- sum min 5 numbers
+                var minFiveSum = selectedNumbersSorted.slice(0, 5).reduce(function (a, b) { return a + b; }, 0);
+                $this.setState({ minFiveSum: minFiveSum });
+                //--- sum max 5 numbers
+                var maxFiveSum = selectedNumbersSorted.slice(selectedNumbersSorted.length - 5, selectedNumbersSorted.length).reduce(function (a, b) { return a + b; }, 0);
+                $this.setState({ maxFiveSum: maxFiveSum });
+            }
+            //--- even : odd
+            _this.setState({ even: _this.even(selectedNumbersSorted) });
+            _this.setState({ odd: _this.odd(selectedNumbersSorted) });
+        };
+        _this.even = function (array) {
+            var counter = 0;
+            for (var i = 0; i < array.length; i++) {
+                if (array[i] % 2 === 0)
+                    counter++;
+            }
+            return counter;
+        };
+        _this.odd = function (array) {
+            var counter = 0;
+            for (var i = 0; i < array.length; i++) {
+                if (array[i] % 2 !== 0)
+                    counter++;
+            }
+            return counter;
+        };
         _this.state = {
-            showMe: "No"
+            showMe: "No",
+            selectedNumbers: [],
+            totalSum: 0,
+            minThreeSum: 0,
+            maxThreeSum: 0,
+            minFiveSum: 0,
+            maxFiveSum: 0,
+            minNumber: 0,
+            maxNumber: 0,
+            even: 0,
+            odd: 0
         };
         return _this;
+        //this.calculateStatistics  = this.calculateStatistics.bind(this, 'Parameter');
     }
     Animation.prototype.componentDidMount = function () {
         var $this = this;
@@ -146,24 +210,63 @@ var Animation = /** @class */ (function (_super) {
         }, 1000);
     };
     Animation.prototype.render = function () {
+        var _this = this;
         return (React.createElement("div", null,
             React.createElement("div", { className: "col-md-12" },
                 React.createElement("div", { className: "col-md-4 put-left" },
                     React.createElement("div", { className: "row row-2" },
                         React.createElement("div", { className: "col-md-12" },
                             React.createElement(Circle, { list: [0], className: "ball-logo", id: "ball-logo" }),
-                            React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-2" }),
-                            React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-3" }),
-                            React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-4" }),
-                            React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-5" }))),
+                            React.createElement(Circle, { list: ["G2"], className: "ball-game", id: "ball-game-2" }),
+                            React.createElement(Circle, { list: ["G3"], className: "ball-game", id: "ball-game-3" }),
+                            React.createElement(Circle, { list: ["G4"], className: "ball-game", id: "ball-game-4" }),
+                            React.createElement(Circle, { list: ["G5"], className: "ball-game", id: "ball-game-5" }))),
                     React.createElement("div", { className: "row row-10" },
-                        React.createElement("div", { className: "col-md-12" }))),
+                        React.createElement("div", { className: "col-md-12" },
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Zbir izvu\u010Denih brojeva : "),
+                                React.createElement("div", null,
+                                    this.state.totalSum,
+                                    "  ")),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Zbir 3 najmanja broja : "),
+                                React.createElement("div", null, this.state.minThreeSum)),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Zbir 3 najve\u0107a broja : "),
+                                React.createElement("div", null, this.state.maxThreeSum)),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Zbir 5 najmanja broja : "),
+                                React.createElement("div", null, this.state.minFiveSum)),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Zbir 5 najve\u0107ih brojeva : "),
+                                React.createElement("div", null, this.state.maxFiveSum)),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Najmanji broj : "),
+                                React.createElement("div", null,
+                                    this.state.minNumber,
+                                    "  ")),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Najve\u0107i broj : "),
+                                React.createElement("div", null,
+                                    this.state.maxNumber,
+                                    "  ")),
+                            React.createElement("div", { className: "statistic-result" },
+                                React.createElement("div", null, "Par - Nepar : "),
+                                React.createElement("div", null,
+                                    " ",
+                                    this.state.even,
+                                    " -  ",
+                                    this.state.odd,
+                                    " "))))),
                 React.createElement("div", { className: "col-md-8 put-right" },
                     React.createElement("div", { className: "row row-9" },
                         React.createElement("div", { "show-me": this.state.showMe, className: "col-md-12" },
                             React.createElement(Circle, { list: [0], className: "center-circle", id: "center" }),
                             React.createElement(Circle, { list: [0], className: "center-circle-outside", id: "center-outside" }),
-                            React.createElement(Circle, { list: this.props.numbers, onComplete: this.props.onComplete, animation: true, className: "ball-circle", id: "ball" }))),
+                            React.createElement(Circle, { list: this.props.numbers, onComplete: this.props.onComplete, updateStatistics: function (i) { return _this.calculateStatistics(i); }, animation: true, className: "ball-circle", id: "ball" })),
+                        React.createElement("div", { className: "animation-uninques" },
+                            React.createElement("span", null, "5616846685"),
+                            React.createElement("span", null, "09:30"))),
                     React.createElement("div", { className: "row row-3" },
                         React.createElement("div", { className: "col-md-12" }, this.props.numbers.map(function (object, i) { return React.createElement(Circle, { list: [0], dataBadge: i + 1, className: "ball-numbers", key: i }); })))))));
     };
@@ -198,6 +301,31 @@ var Circle = /** @class */ (function (_super) {
     __extends(Circle, _super);
     function Circle(props) {
         var _this = _super.call(this, props) || this;
+        _this.moveTopToBottom = function (parentElement, startPosition) {
+            //var elem = document.getElementById(elementClass);   
+            var parentPos = parentElement.getBoundingClientRect();
+            var element = parentElement.children[0];
+            var pos = element.getBoundingClientRect();
+            var id = setInterval(frame, 10);
+            var nextTop = pos.top;
+            var nextWidth = element.clientWidth;
+            var nextHeight = element.clientheigth;
+            function frame() {
+                if (nextTop == 350) {
+                    clearInterval(id);
+                }
+                else {
+                    console.log('position of center ball : ' + nextTop.toString());
+                    nextTop++;
+                    nextHeight--;
+                    nextWidth--;
+                    element.style.marginTop = nextTop.toString() + 'px';
+                    element.style.width = nextWidth.toString() + 'px';
+                    element.style.height = nextHeight.toString() + 'px';
+                    //elem.style.left = pos + 'px'; 
+                }
+            }
+        };
         _this.handleBallColor = function ($value) {
             var color = "black";
             if ($value >= 1 && $value < 10)
@@ -268,7 +396,20 @@ var Circle = /** @class */ (function (_super) {
         };
         _this.Animation = function () {
             //console.log(document.getElementById('center'));
-            var pos = document.getElementsByClassName('center-circle')[0].getBoundingClientRect(), radiusSatByElement = document.getElementsByClassName('ball-circle')[0].offsetWidth * 0.5, radiusByElement = document.getElementsByClassName('center-circle')[0].offsetWidth * 0.5, cxByElement = pos.left + radiusByElement, cyByElement = pos.top + radiusByElement, $this = _this, numberOfBall = _this.state.listItems.length, spc = 360 / numberOfBall, deg2radByElement = Math.PI / 180, i = 0;
+            var centerElement = document.getElementsByClassName('center-circle')[0], pos = centerElement.getBoundingClientRect(), posOutsideCircle = document.getElementsByClassName('center-circle-outside')[0];
+            radiusSatByElement = document.getElementsByClassName('ball-circle')[0].offsetWidth * 0.5,
+                radiusByElement = centerElement.offsetWidth * 0.5,
+                cxByElement = pos.left + radiusByElement,
+                cyByElement = pos.top + radiusByElement,
+                $this = _this,
+                numberOfBall = _this.state.listItems.length,
+                spc = 360 / numberOfBall,
+                deg2radByElement = Math.PI / 180,
+                i = 0;
+            posOutsideCircle.style.top = (pos.top - 88).toString() + "px";
+            posOutsideCircle.style.left = (pos.left - 88).toString() + "px";
+            posOutsideCircle.style.width = (centerElement.width + 100).toString() + "px";
+            posOutsideCircle.style.height = (centerElement.height + 100).toString() + "px";
             _this.setState({
                 radiusSat: radiusSatByElement,
                 radius: radiusByElement,
@@ -280,7 +421,7 @@ var Circle = /** @class */ (function (_super) {
             });
             var newAngles = _this.state.angles.slice(); // copy the array
             var newAngle = 90;
-            for (var i_1 = 0; i_1 < numberOfBall; i_1++) {
+            for (var i = 0; i < numberOfBall; i++) {
                 newAngles.push(newAngle);
                 newAngle = newAngle - spc;
                 _this.setState({ angle: newAngle }, function () {
@@ -313,7 +454,6 @@ var Circle = /** @class */ (function (_super) {
             dataBadge: _this.props.dataBadge
         };
         _this.Loop = _this.Loop.bind(_this);
-        ;
         _this.Animation = _this.Animation.bind(_this);
         _this.handleChange = _this.handleChange.bind(_this);
         return _this;
@@ -323,37 +463,49 @@ var Circle = /** @class */ (function (_super) {
             this.Animation();
             var counter_1 = 0;
             var counterLuckyNumbers_1 = 1;
-            var $interval = 5000;
+            var $interval = 6000;
+            var $ballwithBadgeInterval_1 = 5300;
+            var $ballClockMoveInterval_1 = 4700;
+            var $clockMoveInterval_1 = 5200;
             var $value_1 = 0;
             var numbersArray_1 = this.state.listItems.slice();
             var $this_1 = this;
             var exLoop_1 = setInterval(function () {
                 var elementToUpdate = document.querySelector('input.input-ball-circle:last-of-type');
+                var centerElementToUpdate = document.querySelector('.center-circle');
                 var badgeElementToUpdate = document.querySelector('[data-badge="' + counterLuckyNumbers_1 + '"]');
                 //console.log("elementToUpdate: " + elementToUpdate);            
                 if (counter_1 > numbersArray_1.length - 1 || !elementToUpdate) {
                     clearInterval(exLoop_1);
-                    console.log("elementToUpdate: " + elementToUpdate);
-                    //(e) => this.props.updateTextCB(e.target.value) 
-                    $this_1.props.onComplete();
+                    centerElementToUpdate.innerHTML = "<div class='center-ball-animation-finished-text'>Kraj</div>";
+                    setTimeout(function () {
+                        $this_1.props.onComplete();
+                    }, 2000);
                 }
                 else {
                     $value_1 = numbersArray_1[counter_1]; //++counter + $interval/1000;
                     console.log(counterLuckyNumbers_1);
                     var color = $this_1.handleBallColor($value_1);
-                    var $classAnimation = "ball-selected-animation ball-selected-" + color;
-                    var $class_1 = "ball-selected ball-selected-" + color;
-                    //console.log($class);
-                    //---- this should be update
-                    elementToUpdate.parentElement.innerHTML = "<div class='" + $classAnimation + "'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + $value_1 + "</span></div></div></div>";
+                    var $classAnimation_1 = "ball-selected-animation ball-selected-" + color;
+                    var $classAnimationBadges_1 = "ball-selected-badges ball-selected-" + color;
+                    var $class = "ball-selected ball-selected-" + color;
+                    centerElementToUpdate.innerHTML = "<div class='center-ball-animation'>" + $value_1 + "</div>";
                     setTimeout(function () {
-                        badgeElementToUpdate.innerHTML = "<div class='" + $class_1 + "'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + $value_1 + "</span></div></div></div>";
+                        var currentValue = $value_1;
+                        var currentBallClass = $classAnimation_1;
+                        elementToUpdate.parentElement.innerHTML = "<div class='" + currentBallClass + "'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + currentValue + "</span></div></div></div>";
+                    }, $ballClockMoveInterval_1);
+                    setTimeout(function () {
+                        var currentValue = $value_1;
+                        var currentBallClass = $classAnimationBadges_1;
+                        badgeElementToUpdate.innerHTML = "<div class='" + currentBallClass + "'><div class='ball-inner-circle'><div class='ball-circle-number'><span>" + currentValue + "</span></div></div></div>";
                         counterLuckyNumbers_1++;
-                    }, 2500);
+                        $this_1.props.updateStatistics($value_1);
+                    }, $ballwithBadgeInterval_1);
                     counter_1++;
                     setTimeout(function () {
                         $this_1.Loop(true);
-                    }, 2500);
+                    }, $clockMoveInterval_1);
                 }
             }, $interval);
         }
@@ -507,7 +659,7 @@ var LuckyNumber = /** @class */ (function (_super) {
     }
     LuckyNumber.prototype.componentDidMount = function () {
         console.log("this.props.luckyNumberValue" + this.props.luckyNumberValue);
-        if (this.props.luckyNumberValue && this.props.luckyNumberValue > 0 && !this.props.animation) {
+        if (this.props.luckyNumberValue && this.props.luckyNumberValue != 0 && !this.props.animation) {
             var color = this.handleColor(this.props.luckyNumberValue);
             var $class = "ball-selected ball-selected-" + color;
             this.setState({ component: React.createElement("div", { className: $class },
@@ -571,25 +723,25 @@ var Results = /** @class */ (function (_super) {
             React.createElement("div", { className: "row row-2" },
                 React.createElement("div", { className: "col-md-7" },
                     React.createElement(Circle, { list: [0], className: "ball-logo", id: "ball-logo" }),
-                    React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-2" }),
-                    React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-3" }),
-                    React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-4" }),
-                    React.createElement(Circle, { list: [0], className: "ball-game", id: "ball-game-5" })),
+                    React.createElement(Circle, { list: ["G2"], className: "ball-game", id: "ball-game-2" }),
+                    React.createElement(Circle, { list: ["G3"], className: "ball-game", id: "ball-game-3" }),
+                    React.createElement(Circle, { list: ["G4"], className: "ball-game", id: "ball-game-4" }),
+                    React.createElement(Circle, { list: ["G5"], className: "ball-game", id: "ball-game-5" })),
                 React.createElement("div", { className: "col-md-3 put-right" },
                     React.createElement(CountDownTimer, { seconds: 25, onComplete: this.props.onComplete, onTimerExpired: this.props.onTimerExpired }))),
-            React.createElement("div", { className: "row row-4" },
+            React.createElement("div", { className: "row row-3-custom" },
                 React.createElement("div", { className: "col-md-2 results-time" }, "09:30"),
                 React.createElement("div", { className: "col-md-9 results-numbers" },
                     React.createElement("div", null,
                         this.state.listItems1.map(function (value, i) { return React.createElement(Circle, { list: [value], dataBadge: i + 1, className: "ball-numbers-medium", key: i }); }),
                         " "))),
-            React.createElement("div", { className: "row row-4" },
+            React.createElement("div", { className: "row row-3-custom" },
                 React.createElement("div", { className: "col-md-2 results-time" }, "09:25"),
                 React.createElement("div", { className: "col-md-9 results-numbers" },
                     React.createElement("div", null,
                         this.state.listItems2.map(function (value, i) { return React.createElement(Circle, { list: [value], dataBadge: i + 1, className: "ball-numbers-medium", key: i }); }),
                         " "))),
-            React.createElement("div", { className: "row row-4" },
+            React.createElement("div", { className: "row row-3-custom" },
                 React.createElement("div", { className: "col-md-2 results-time" }, "09:20"),
                 React.createElement("div", { className: "col-md-9 results-numbers" },
                     React.createElement("div", null,
@@ -626,6 +778,7 @@ var ReactCountdownClock = __webpack_require__(/*! react-countdown-clock */ "./no
 var Animation = __webpack_require__(/*! ./Animation */ "./components/Animation.jsx");
 var Results = __webpack_require__(/*! ./Results */ "./components/Results.jsx");
 var Circle = __webpack_require__(/*! ./Circle */ "./components/Circle.jsx");
+var Statistics = __webpack_require__(/*! ./Statistics */ "./components/Statistics.jsx");
 var Scene = /** @class */ (function (_super) {
     __extends(Scene, _super);
     function Scene(props) {
@@ -642,6 +795,7 @@ var Scene = /** @class */ (function (_super) {
                             <ReactCountdownClock seconds={this.state.RemainingTime}
                             color="#4fc3f7"
                             alpha={0.9}
+                            showMilliseconds = false
                             size={500}
                             onComplete={this.RenderAnimationScene} />
                             </div>
@@ -650,9 +804,8 @@ var Scene = /** @class */ (function (_super) {
                    (error) => {
                      console.log(error);
            });      */
-            _this.setState({ component: React.createElement("div", { className: "with-flag" },
-                    React.createElement("div", { className: "title-header" }, "Izvla\u010Denje po\u010Dinje za"),
-                    React.createElement(ReactCountdownClock, { seconds: 50, color: "#4fc3f7", alpha: 0.9, size: 500, onComplete: _this.RenderAnimationScene })) });
+            _this.setState({ component: React.createElement("div", null,
+                    React.createElement(ReactCountdownClock, { seconds: 10, color: "#4fc3f7", alpha: 0.9, showMilliseconds: false, size: 500, onComplete: _this.RenderAnimationScene })) });
         };
         _this.RenderAnimationScene = function () {
             //--- get remaining time for counter
@@ -666,7 +819,11 @@ var Scene = /** @class */ (function (_super) {
             });
         };
         _this.RenderLastThreeResultsScene = function () {
-            _this.setState({ component: React.createElement(Results, { onComplete: _this.RenderCountdownScene, onTimerExpired: _this.RenderCountdownScene })
+            _this.setState({ component: React.createElement(Results, { onComplete: _this.RenderStatisticsScene, onTimerExpired: _this.RenderStatisticsScene })
+            });
+        };
+        _this.RenderStatisticsScene = function () {
+            _this.setState({ component: React.createElement(Statistics, { onComplete: _this.RenderCountdownScene, onTimerExpired: _this.RenderCountdownScene })
             });
         };
         _this.state = {
@@ -685,6 +842,122 @@ var Scene = /** @class */ (function (_super) {
     return Scene;
 }(React.Component));
 module.exports = Scene;
+
+
+/***/ }),
+
+/***/ "./components/Statistics.jsx":
+/*!***********************************!*\
+  !*** ./components/Statistics.jsx ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+var Circle = __webpack_require__(/*! ../components/Circle */ "./components/Circle.jsx");
+var CountDownTimer = __webpack_require__(/*! ./CountDownTimer */ "./components/CountDownTimer.jsx");
+var Statistics = /** @class */ (function (_super) {
+    __extends(Statistics, _super);
+    function Statistics(props) {
+        var _this = _super.call(this, props) || this;
+        _this.state = { component: null,
+            rarelyNumber: [13],
+            rarelyTwoNumbers: [27, 1],
+            rarelyThreeNumbers: [32, 7, 9],
+            rarelyFourNumbers: [22, 39, 17, 6],
+            rarelyFiveNumbers: [22, 39, 17, 6, 8],
+            oftenNumber: [10],
+            oftenTwoNumbers: [10, 6],
+            oftenThreeNumbers: [15, 3, 29],
+            oftenFourNumbers: [22, 39, 17, 37],
+            oftenFiveNumbers: [22, 39, 17, 6, 18]
+        };
+        return _this;
+    }
+    Statistics.prototype.componentDidMount = function () {
+        this.setState({
+            component: React.createElement("div", null,
+                React.createElement("div", { className: "row row-2-custom" },
+                    React.createElement("div", { className: "col-md-7" },
+                        React.createElement(Circle, { list: [0], className: "ball-logo", id: "ball-logo" }),
+                        React.createElement(Circle, { list: ["G2"], className: "ball-game", id: "ball-game-2" }),
+                        React.createElement(Circle, { list: ["G3"], className: "ball-game", id: "ball-game-3" }),
+                        React.createElement(Circle, { list: ["G4"], className: "ball-game", id: "ball-game-4" }),
+                        React.createElement(Circle, { list: ["G5"], className: "ball-game", id: "ball-game-5" })),
+                    React.createElement("div", { className: "col-md-3 put-right" },
+                        React.createElement(CountDownTimer, { seconds: 25, onComplete: this.props.onComplete, onTimerExpired: this.props.onTimerExpired }))),
+                React.createElement("div", { className: "row row-11-custom" },
+                    React.createElement("div", { className: "col-md-6 put-left" },
+                        React.createElement("div", { className: "col-md-12 put-right" },
+                            React.createElement("div", { className: "statistics-title-right" }, "Najredji broj"),
+                            React.createElement("div", { className: "statistics-result-right" },
+                                this.state.rarelyNumber.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-right" },
+                            React.createElement("div", { className: "statistics-title-right" }, "Najredja dva broja"),
+                            React.createElement("div", { className: "statistics-result-right" },
+                                this.state.rarelyTwoNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-right" },
+                            React.createElement("div", { className: "statistics-title-right" }, "Najredja tri broja"),
+                            React.createElement("div", { className: "statistics-result-right" },
+                                this.state.rarelyThreeNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-right" },
+                            React.createElement("div", { className: "statistics-title-right" }, "Najredja \u010Detiri broja"),
+                            React.createElement("div", { className: "statistics-result-right" },
+                                this.state.rarelyFourNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-right" },
+                            React.createElement("div", { className: "statistics-title-right" }, "Najredjih pet brojeva"),
+                            React.createElement("div", { className: "statistics-result-right" },
+                                this.state.rarelyFiveNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " "))),
+                    React.createElement("div", { className: "col-md-6 put-right" },
+                        React.createElement("div", { className: "col-md-12 put-left" },
+                            React.createElement("div", { className: "statistics-title-left" }, "Naj\u010De\u0161\u0107i broj"),
+                            React.createElement("div", { className: "statistics-result-left" },
+                                this.state.oftenNumber.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-left" },
+                            React.createElement("div", { className: "statistics-title-left" }, "Naj\u010De\u0161\u0107a dva broja"),
+                            React.createElement("div", { className: "statistics-result-left" },
+                                this.state.oftenTwoNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-left" },
+                            React.createElement("div", { className: "statistics-title-left" }, "Naj\u010De\u0161\u0107a tri broja"),
+                            React.createElement("div", { className: "statistics-result-left" },
+                                this.state.oftenThreeNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-left" },
+                            React.createElement("div", { className: "statistics-title-left" }, "Naj\u010De\u0161\u0107a \u010Detiri broja"),
+                            React.createElement("div", { className: "statistics-result-left" },
+                                this.state.oftenFourNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")),
+                        React.createElement("div", { className: "col-md-12 put-left" },
+                            React.createElement("div", { className: "statistics-title-left" }, "Naj\u010De\u0161\u0107ih pet brojeva"),
+                            React.createElement("div", { className: "statistics-result-left" },
+                                this.state.oftenFiveNumbers.map(function (value, i) { return React.createElement(Circle, { list: [value], className: "ball-numbers-medium", key: i }); }),
+                                " ")))))
+        });
+    };
+    Statistics.prototype.render = function () {
+        return (React.createElement("div", null, this.state.component));
+    };
+    return Statistics;
+}(React.Component));
+module.exports = Statistics;
 
 
 /***/ }),

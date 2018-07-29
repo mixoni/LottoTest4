@@ -4,6 +4,7 @@ var ReactCountdownClock = require('react-countdown-clock');
 var Animation = require('./Animation');
 var Results = require('./Results');
 var Circle = require('./Circle');
+var Statistics = require('./Statistics');
 
 
 class Scene extends React.Component {    
@@ -33,6 +34,7 @@ class Scene extends React.Component {
                          <ReactCountdownClock seconds={this.state.RemainingTime}
                          color="#4fc3f7"
                          alpha={0.9}
+                         showMilliseconds = false
                          size={500}
                          onComplete={this.RenderAnimationScene} />
                          </div>
@@ -41,11 +43,11 @@ class Scene extends React.Component {
                 (error) => {
                   console.log(error);
         });      */
-        this.setState({ component : <div className="with-flag">
-                         <div className="title-header">Izvlačenje počinje za</div>
-                         <ReactCountdownClock seconds={6}
+        this.setState({ component : <div>
+                         <ReactCountdownClock seconds={10}
                          color="#4fc3f7"
                          alpha={0.9}
+                         showMilliseconds = false
                          size={500}
                          onComplete={this.RenderAnimationScene} />
                          </div>});
@@ -53,9 +55,8 @@ class Scene extends React.Component {
     }
     
     RenderAnimationScene = () => {
-        this.setState({ component : <Animation numbers={[1,2,33,14,5,36,27,8,19,30,21,12,39,40,15,6,17,38,9,24]} onComplete = {this.RenderLastThreeResultsScene} onTimerExpired={this.RenderCountdownScene} /> })       
         //--- get remaining time for counter
-         /*fetch("api/GetNumbers")
+         fetch("api/GetNumbers")
           .then(res => res.json())
           .then(
             (result) => {
@@ -66,11 +67,17 @@ class Scene extends React.Component {
             (error) => {
               console.log(error);
             }
-          )*/
+          )
     }
    RenderLastThreeResultsScene = () => {
         this.setState({ component : 
-                    <Results  onComplete = {this.RenderCountdownScene} onTimerExpired={this.RenderCountdownScene} />
+                    <Results  onComplete = {this.RenderStatisticsScene} onTimerExpired={this.RenderStatisticsScene}/>
+        }) 
+   }
+
+   RenderStatisticsScene = () => {
+        this.setState({ component : 
+                    <Statistics  onComplete = {this.RenderCountdownScene}  onTimerExpired={this.RenderCountdownScene} />
         }) 
    }
         
